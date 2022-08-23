@@ -1,12 +1,12 @@
 import './App.css';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import Homepage from './pages/homepage/Homepage.component';
 import ShopPage from './pages/shop/shop.component';
 import { Header } from './components/header/header.component';
 import { SignInAndSignup } from './pages/sign-in-and-signup/sign-in-and-signup.component';
 import { auth, createUserProfilDocument, db } from './firebase/firebase.utils'
 import { onAuthStateChanged } from "firebase/auth";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserAuthContextProvider } from "./firebase/UserAuthContext";
 import { doc } from 'firebase/firestore';
 
@@ -19,39 +19,60 @@ import { doc } from 'firebase/firestore';
 //   )
 // }
 
-class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      currentUser: null
-    }
-  }
+// class App extends React.Component {
+//   constructor() {
+//     super();
+//     this.state = {
+//       currentUser: null
+//     }
+//   }
 
-  unsubscribeFromAuth = null;
+//   unsubscribeFromAuth = null;
 
-  componentDidMount() {
-    this.unsubscribeFromAuth = onAuthStateChanged(auth, (userAuth) => {
-      if(userAuth) {
-        const userRef = createUserProfilDocument(userAuth)
-        this.setState({
-          id: userRef.id
-          
-        })
-        
-        console.log(this.state)
+//   componentDidMount() {
+//     this.unsubscribeFromAuth = onAuthStateChanged(auth, (user) => {
+//       if (user) {
+//         const userRef = createUserProfilDocument(user)
+//         this.setState({ currentUser: user })
+//         console.log(this.state)
+//       }
+//     })
+//   }
+
+//   componentWillUnmount() {
+//     this.unsubscribeFromAuth();
+//   }
+
+//   render() {
+//     return (
+      
+//     );
+//   }
+
+
+const App = () => {
+  const [currentUser, setCurrentUser] = useState(null)
+  let navigate = useNavigate()
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if(user) {
+        createUserProfilDocument(user)
       }
+      setCurrentUser(user)
+      return navigate('/')
     })
-  }
+  
+    return () => {
+      unsubscribe()
+    }
+  }, [])
+  
 
-  componentWillUnmount() {
-    this.unsubscribeFromAuth();
-  }
-
-  render() {
-    return (
-      <div>
+  return (
+    <div>
         <UserAuthContextProvider>
-          <Header currentUser={this.state.currentUser} />
+          <Header currentUser={currentUser} />
           <Routes>
             <Route exact path="/" element={<Homepage />} />
             <Route exact path="/shop" element={<ShopPage />} />
@@ -61,8 +82,7 @@ class App extends React.Component {
           </Routes>
         </UserAuthContextProvider>
       </div>
-    );
-  }
+  )
 }
 
-export default App;
+export default App

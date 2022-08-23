@@ -3,27 +3,27 @@ import { CustomButton } from '../../components/custom-button/custom-button.compo
 import FormInput from '../../components/form-input/form-input.component';
 import { useUserAuth } from "../../firebase/UserAuthContext";
 
-import { signInWithGoogle } from '../../firebase/firebase.utils';
+import { auth, signInWithGoogle } from '../../firebase/firebase.utils';
 
 import './sign-in.styles.scss';
 import { useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const SignIn = () => {
-  const [name, setName] = useState("")
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
-  const { signUp } = useUserAuth();
-  let navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     try {
-      await signUp(email, password);
-      navigate("/");
+      await signInWithEmailAndPassword(auth, email, password)
+      setEmail('')
+      setPassword('')
     } catch (err) {
       setError(err.message);
+      console.log(error)
     }
   };
 

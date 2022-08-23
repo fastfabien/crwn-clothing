@@ -28,6 +28,7 @@ const provider=new GoogleAuthProvider()
 const usersCollectionRef = collection(db, "users");
 
 export const createUserProfilDocument = async (userAuth, additionalData) => {
+  let user = null
   if(!userAuth) return;
   const uid = userAuth.uid;
   const test = await getDocs(usersCollectionRef)
@@ -35,12 +36,12 @@ export const createUserProfilDocument = async (userAuth, additionalData) => {
     const { displayName, email } = userAuth;
     const createAt = new Date();
     try {
-      await setDoc(doc(db, 'users', uid), { displayName, email, createAt, ...additionalData })
+      user = await setDoc(doc(db, 'users', uid), { displayName, email, createAt, ...additionalData })
     } catch (error) {
       console.log('Error creating user', error.message)
     }
   }
-  return uid;
+  return user;
 }
 
 provider.setCustomParameters({ prompt: 'select_account' });
