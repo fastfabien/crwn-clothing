@@ -2,64 +2,25 @@ import './App.css';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Homepage from './pages/homepage/Homepage.component';
 import ShopPage from './pages/shop/shop.component';
-import { Header } from './components/header/header.component';
+import Header  from './components/header/header.component';
 import { SignInAndSignup } from './pages/sign-in-and-signup/sign-in-and-signup.component';
 import { auth, createUserProfilDocument, db } from './firebase/firebase.utils'
 import { onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from 'react';
 import { UserAuthContextProvider } from "./firebase/UserAuthContext";
-import { doc } from 'firebase/firestore';
-
-// const HatsPage = (props) => {
-//   console.log(props)
-//   return (
-//     <div>
-//       <h1>HATS PAGES</h1>
-//     </div>
-//   )
-// }
-
-// class App extends React.Component {
-//   constructor() {
-//     super();
-//     this.state = {
-//       currentUser: null
-//     }
-//   }
-
-//   unsubscribeFromAuth = null;
-
-//   componentDidMount() {
-//     this.unsubscribeFromAuth = onAuthStateChanged(auth, (user) => {
-//       if (user) {
-//         const userRef = createUserProfilDocument(user)
-//         this.setState({ currentUser: user })
-//         console.log(this.state)
-//       }
-//     })
-//   }
-
-//   componentWillUnmount() {
-//     this.unsubscribeFromAuth();
-//   }
-
-//   render() {
-//     return (
-      
-//     );
-//   }
-
+import { useDispatch } from 'react-redux';
+import { login } from './redux/user/user.reducer';
 
 const App = () => {
-  const [currentUser, setCurrentUser] = useState(null)
   let navigate = useNavigate()
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if(user) {
         createUserProfilDocument(user)
       }
-      setCurrentUser(user)
+      dispatch(login(user))
       return navigate('/')
     })
   
@@ -72,7 +33,7 @@ const App = () => {
   return (
     <div>
         <UserAuthContextProvider>
-          <Header currentUser={currentUser} />
+          <Header />
           <Routes>
             <Route exact path="/" element={<Homepage />} />
             <Route exact path="/shop" element={<ShopPage />} />
@@ -85,4 +46,4 @@ const App = () => {
   )
 }
 
-export default App
+export default App;
